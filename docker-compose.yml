@@ -1,0 +1,131 @@
+# ============================================================
+# Big Data Stack: MinIO + Apache Iceberg + Apache Spark + dbt
+# IF4044 Proyek Big Data 2025/2026
+# Image: spark:3.5.8-scala2.12-java11-ubuntu (Docker Official)
+# ============================================================
+
+networks:
+  bigdata-net:
+    driver: bridge
+
+volumes:
+  minio-data:
+
+services:
+  # ============================================================
+  # MinIO - S3-compatible Object Storage (Layer Storage)
+  # Berfungsi sebagai storage layer untuk Data Lakehouse
+  # ============================================================
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    networks:
+      - bigdata-net
+    ports:
+      - "9000:9000"   # S3 API endpoint
+      - "9001:9001"   # MinIO Console (Web UI)
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin123
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================================
+  # MinIO Init - Otomatis membuat bucket saat pertama kali jalan
+  # ============================================================
+  minio-init:
+    image: minio/mc:latest
+    container_name: minio-init
+    networks:
+      - bigdata-net
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+        mc alias set local http://minio:9000 minioadmin minioadmin123;
+        mc mb --ignore-existing local/lakehouse;
+        mc mb --ignore-existing local/tpch-raw;
+        echo 'Buckets created: lakehouse, tpch-raw';
+      "
+
+  # ============================================================
+  # Spark Master - Koordinator cluster Spark
+  # apache/spark berbeda dari bitnami: tidak ada SPARK_MODE,
+  # harus jalankan script start-master.sh secara eksplisit
+  # ============================================================
+  spark-master:
+    image: apache/spark:3.5.8-scala2.12-java17-python3-r-ubuntu
+    container_name: spark-master
+    networks:
+      - bigdata-net
+    ports:
+      - "8080:8080"
+      - "7077:7077"
+    environment:
+      - SPARK_NO_DAEMONIZE=true
+    volumes:
+      - ./spark/conf:/opt/spark/conf
+      - ./spark/jars:/opt/spark/extra-jars
+      - ./data:/opt/spark/work
+    command: >
+      /bin/bash -c "
+        /opt/spark/sbin/start-master.sh &&
+        tail -f /opt/spark/logs/*
+      "
+
+  # ============================================================
+  # Spark Worker - Eksekutor komputasi
+  # ============================================================
+  spark-worker:
+    image: apache/spark:3.5.8-scala2.12-java17-python3-r-ubuntu
+    container_name: spark-worker
+    networks:
+      - bigdata-net
+    depends_on:
+      - spark-master
+    environment:
+      - SPARK_NO_DAEMONIZE=true
+    volumes:
+      - ./spark/conf:/opt/spark/conf
+      - ./spark/jars:/opt/spark/extra-jars
+      - ./data:/opt/spark/work
+    command: >
+      /bin/bash -c "
+        /opt/spark/sbin/start-worker.sh spark://spark-master:7077 &&
+        tail -f /opt/spark/logs/*
+      "
+
+  # ============================================================
+  # Spark Thrift Server - SQL interface untuk dbt-spark
+  # Memungkinkan dbt terhubung ke Spark via JDBC/HiveServer2
+  # ============================================================
+  spark-thrift:
+    image: apache/spark:3.5.8-scala2.12-java17-python3-r-ubuntu
+    container_name: spark-thrift
+    networks:
+      - bigdata-net
+    ports:
+      - "10001:10000"
+    depends_on:
+      - spark-master
+      - minio-init
+    volumes:
+      - ./spark/conf:/opt/spark/conf
+      - ./spark/jars:/opt/spark/extra-jars
+      - ./data:/opt/spark/work
+    environment:
+      - SPARK_NO_DAEMONIZE=true
+    command: |
+      /bin/bash -c "
+        mkdir -p /opt/spark/logs &&
+        sleep 10 &&
+        /opt/spark/sbin/start-thriftserver.sh --master spark://spark-master:7077 --hiveconf hive.server2.thrift.port=10000 --hiveconf hive.server2.thrift.bind.host=0.0.0.0 &&
+        tail -f /opt/spark/logs/*
+      "

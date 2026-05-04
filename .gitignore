@@ -1,0 +1,30 @@
+# --- Data (terlalu besar untuk di-commit) ---
+data/
+*.tbl
+*.csv
+*.parquet
+
+# --- Python ---
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.env
+
+# --- Spark ---
+spark/jars/
+spark-warehouse/
+derby.log
+metastore_db/
+
+# --- dbt ---
+dbt/target/
+dbt/logs/
+dbt/.user.yml
+
+# --- Docker ---
+docker-compose.override.yml
+
+# --- OS ---
+.DS_Store
+Thumbs.db
