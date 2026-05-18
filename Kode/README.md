@@ -130,26 +130,13 @@ Verifikasi upload di MinIO Console: http://localhost:9001 → bucket `tpch-raw`
 
 ## 5. Load Data ke Lakehouse (CSV → Iceberg/Parquet)
 
-**Opsi A — Notebook (eksplorasi + verifikasi ukuran):**
-
 Buka Jupyter di http://localhost:8888, jalankan notebook:
 
 ```
 work/load_and_read.ipynb
 ```
 
-Notebook ini membaca `.tbl` dari `s3a://tpch-raw/`, menulis ke Iceberg (`s3a://lakehouse/`),
-membaca kembali, dan menampilkan perbandingan ukuran CSV vs Parquet.
-
-**Opsi B — spark-submit (pipeline produksi):**
-
-```bash
-docker exec spark-master /bin/bash -c "
-  /opt/spark/bin/spark-submit \
-    --master spark://spark-master:7077 \
-    /opt/spark/work/load_tpch_to_iceberg.py
-"
-```
+Notebook ini membaca `.tbl` dari `s3a://tpch-raw/`, menulis ke Iceberg (`s3a://lakehouse/`), membaca kembali, dan menampilkan perbandingan ukuran CSV vs Parquet.
 
 ---
 
@@ -184,8 +171,7 @@ Kode/
 ├── requirements.txt
 ├── scripts/
 │   ├── download-jars.sh          # download JAR dependencies dari Maven
-│   ├── upload-tpch-to-minio.sh   # upload .tbl ke MinIO bucket tpch-raw
-│   └── load_tpch_to_iceberg.py   # spark-submit: load CSV → Iceberg (produksi)
+│   └── upload-tpch-to-minio.sh   # upload .tbl ke MinIO bucket tpch-raw
 ├── spark/
 │   ├── conf/spark-defaults.conf  # konfigurasi Spark + Iceberg + S3A
 │   └── jars/                     # JAR dependencies (gitignored, download via script)
