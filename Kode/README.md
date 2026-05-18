@@ -154,11 +154,80 @@ Notebook ini memverifikasi koneksi ke Spark, baca/tulis ke MinIO, dan membuat Ic
 
 ## 7. Jalankan dbt
 
+Pastikan Docker stack sudah berjalan (`docker compose up -d`) sebelum menjalankan dbt.
+
+**Prasyarat: buat namespace Iceberg** yang dibutuhkan dbt. Buka Jupyter di http://localhost:8888 dan jalankan:
+
+```python
+spark.sql("CREATE NAMESPACE IF NOT EXISTS local.default")
+spark.sql("CREATE NAMESPACE IF NOT EXISTS local.tpch_mart")
+```
+
+> Catatan: namespace ini sudah dibuat otomatis saat `docker compose up` (startup script `spark-thrift`), tapi perlu dibuat ulang jika lakehouse di-reset.
+
+**Masuk ke folder dbt:**
+
 ```bash
-cd dbt
-dbt deps
+cd Kode/dbt
+```
+
+**Test koneksi ke Spark Thrift Server:**
+
+```bash
+dbt debug
+```
+
+Output yang diharapkan: `All checks passed!`
+
+**Jalankan transformasi (buat Data Mart):**
+
+```bash
 dbt run
-dbt test   # opsional — data quality checks
+```
+
+Perintah ini membuat tabel `tpch_mart.sales_summary` di Iceberg (tersimpan di MinIO `s3a://lakehouse/`). Model menggabungkan 5 tabel (`orders`, `lineitem`, `customer`, `nation`, `region`) dan menghitung total revenue per region, nation, tanggal order, dan status.
+
+**Jalankan data quality tests:**
+
+```bash
+dbt test
+```
+
+Menjalankan pengecekan `not_null` pada semua kolom output model `sales_summary`.
+
+**Verifikasi hasil di Jupyter (opsional):**
+
+Buka Jupyter di http://localhost:8888, lalu jalankan:
+
+```python
+spark.sql("SELECT * FROM local.tpch_mart.sales_summary LIMIT 10").show()
+```
+
+**Generate dokumentasi dbt (opsional):**
+
+```bash
+dbt docs generate
+dbt docs serve
+```
+
+Buka http://localhost:8080 untuk melihat dokumentasi interaktif model dan lineage.
+
+---
+
+### Struktur dbt Project
+
+```
+dbt/
+├── dbt_project.yml            # konfigurasi project dan materialization
+├── profiles.yml               # koneksi ke Spark Thrift Server (localhost:10001)
+├── macros/
+│   └── revenue.sql            # macro calculate_revenue(extendedprice, discount)
+└── models/
+    ├── staging/
+    │   └── _sources.yml       # definisi source tables dari local.tpch.*
+    └── marts/
+        ├── sales_summary.sql  # model utama — join 5 tabel, agregasi revenue
+        └── _models.yml        # deskripsi kolom + dbt tests (not_null)
 ```
 
 ---
@@ -181,6 +250,14 @@ Kode/
 ├── data/                         # gitignored — generate lokal dengan DBGEN
 │   └── tpch-csv/                 # file .tbl hasil DBGEN
 └── dbt/                          # dbt project
-    ├── profiles.yml
+    ├── dbt_project.yml           # konfigurasi project dan materialization
+    ├── profiles.yml              # koneksi Spark Thrift Server
+    ├── macros/
+    │   └── revenue.sql           # macro calculate_revenue(extendedprice, discount)
     └── models/
+        ├── staging/
+        │   └── _sources.yml      # source definitions (local.tpch.*)
+        └── marts/
+            ├── sales_summary.sql # mart utama — join 5 tabel, agregasi revenue
+            └── _models.yml       # deskripsi kolom + dbt tests
 ```
