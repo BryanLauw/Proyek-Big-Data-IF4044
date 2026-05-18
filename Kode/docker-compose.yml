@@ -120,13 +120,15 @@ services:
       - ./data:/opt/spark/work
     environment:
       - SPARK_NO_DAEMONIZE=true
-    command: |
-      /bin/bash -c "
-        mkdir -p /opt/spark/logs &&
-        sleep 10 &&
-        /opt/spark/sbin/start-thriftserver.sh --master spark://spark-master:7077 --hiveconf hive.server2.thrift.port=10000 --hiveconf hive.server2.thrift.bind.host=0.0.0.0 &&
-        tail -f /opt/spark/logs/*
-      "
+    command: >-
+      /bin/bash -c "mkdir -p /opt/spark/logs &&
+      cp /opt/spark/extra-jars/aws-java-sdk-bundle-*.jar /opt/spark/extra-jars/iceberg-spark-runtime-*.jar /opt/spark/extra-jars/hadoop-iostats-shim.jar /opt/spark/jars/ &&
+      sleep 10 &&
+      /opt/spark/sbin/start-thriftserver.sh
+      --master spark://spark-master:7077
+      --hiveconf hive.server2.thrift.port=10000
+      --hiveconf hive.server2.thrift.bind.host=0.0.0.0 &&
+      tail -f /opt/spark/logs/*"
 
   # ============================================================
   # Jupyter Notebook - Interactive data exploration & testing
