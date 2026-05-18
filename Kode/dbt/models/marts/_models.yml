@@ -1,0 +1,43 @@
+version: 2
+
+models:
+  - name: sales_summary
+    description: >
+      Aggregated sales data mart joining orders, line items, customers, nations, and regions.
+      Each row represents the total revenue and quantity for a given region, nation,
+      order date, and order status combination.
+    columns:
+      - name: region_name
+        description: "Geographic region name (e.g. ASIA, EUROPE)."
+        tests:
+          - not_null
+
+      - name: nation_name
+        description: "Nation name within the region."
+        tests:
+          - not_null
+
+      - name: o_orderdate
+        description: "Date the order was placed."
+        tests:
+          - not_null
+
+      - name: o_orderstatus
+        description: "Aggregated order status (O, F, or P)."
+        tests:
+          - not_null
+
+      - name: total_revenue
+        description: "Sum of line-item revenue (extendedprice × (1 − discount)) for the group."
+        tests:
+          - not_null
+
+      - name: total_quantity
+        description: "Total quantity of items ordered for the group."
+        tests:
+          - not_null
+
+      - name: order_count
+        description: "Number of distinct orders in the group."
+        tests:
+          - not_null
