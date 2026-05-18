@@ -1,0 +1,106 @@
+version: 2
+
+sources:
+  - name: tpch
+    description: "Raw TPC-H tables loaded from CSV into Apache Iceberg via Spark."
+    schema: tpch
+    tables:
+      - name: orders
+        description: "Customer orders. One row per order."
+        columns:
+          - name: o_orderkey
+            description: "Primary key — unique identifier for each order."
+          - name: o_custkey
+            description: "Foreign key to customer."
+          - name: o_orderstatus
+            description: "Order status: O (open), F (fulfilled), P (partially fulfilled)."
+          - name: o_totalprice
+            description: "Total price of the order."
+          - name: o_orderdate
+            description: "Date the order was placed."
+          - name: o_orderpriority
+            description: "Priority level of the order."
+          - name: o_clerk
+            description: "Clerk responsible for the order."
+          - name: o_shippriority
+            description: "Shipping priority."
+          - name: o_comment
+            description: "Free-text comment."
+
+      - name: lineitem
+        description: "Individual line items within each order. One row per order line."
+        columns:
+          - name: l_orderkey
+            description: "Foreign key to orders."
+          - name: l_partkey
+            description: "Foreign key to part."
+          - name: l_suppkey
+            description: "Foreign key to supplier."
+          - name: l_linenumber
+            description: "Line number within the order."
+          - name: l_quantity
+            description: "Quantity ordered."
+          - name: l_extendedprice
+            description: "Base price before discounts and tax."
+          - name: l_discount
+            description: "Discount fraction applied (0.00–0.10)."
+          - name: l_tax
+            description: "Tax fraction applied."
+          - name: l_returnflag
+            description: "Return flag: R (returned), A (accepted), N (none)."
+          - name: l_linestatus
+            description: "Line status: O (open) or F (fulfilled)."
+          - name: l_shipdate
+            description: "Date the item was shipped."
+          - name: l_commitdate
+            description: "Committed delivery date."
+          - name: l_receiptdate
+            description: "Date the item was received."
+          - name: l_shipinstruct
+            description: "Shipping instructions."
+          - name: l_shipmode
+            description: "Shipping mode (AIR, SHIP, TRUCK, etc.)."
+          - name: l_comment
+            description: "Free-text comment."
+
+      - name: customer
+        description: "Customer master data."
+        columns:
+          - name: c_custkey
+            description: "Primary key — unique identifier for each customer."
+          - name: c_name
+            description: "Customer name."
+          - name: c_address
+            description: "Customer address."
+          - name: c_nationkey
+            description: "Foreign key to nation."
+          - name: c_phone
+            description: "Customer phone number."
+          - name: c_acctbal
+            description: "Account balance."
+          - name: c_mktsegment
+            description: "Market segment the customer belongs to."
+          - name: c_comment
+            description: "Free-text comment."
+
+      - name: nation
+        description: "Nation reference table."
+        columns:
+          - name: n_nationkey
+            description: "Primary key."
+          - name: n_name
+            description: "Nation name."
+          - name: n_regionkey
+            description: "Foreign key to region."
+          - name: n_comment
+            description: "Free-text comment."
+
+      - name: region
+        description: "Region reference table."
+        columns:
+          - name: r_regionkey
+            description: "Primary key."
+          - name: r_name
+            description: "Region name."
+          - name: r_comment
+            description: "Free-text comment."
