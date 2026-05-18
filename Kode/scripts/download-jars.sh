@@ -6,7 +6,7 @@ mkdir -p "$JARS_DIR"
 echo "Downloading required JARs..."
 echo ""
 
-ICEBERG_VERSION="1.5.2"
+ICEBERG_VERSION="1.4.3"
 HADOOP_VERSION="3.3.4"
 AWS_SDK_VERSION="1.12.262"
 SCALA_VERSION="2.12"

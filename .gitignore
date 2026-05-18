@@ -1,4 +1,4 @@
-# --- Data (terlalu besar untuk di-commit) ---
+# --- Data ---
 data/
 *.tbl
 *.csv
@@ -12,18 +12,21 @@ __pycache__/
 .env
 
 # --- Spark ---
-spark/jars/
+**/spark/jars/
 spark-warehouse/
 derby.log
 metastore_db/
 
+# --- Jupyter ---
+**/.ipynb_checkpoints/
+
 # --- dbt ---
-dbt/target/
-dbt/logs/
-dbt/.user.yml
+**/dbt/target/
+**/dbt/logs/
+**/dbt/.user.yml
 
 # --- Docker ---
-docker-compose.override.yml
+**/docker-compose.override.yml
 
 # --- OS ---
 .DS_Store

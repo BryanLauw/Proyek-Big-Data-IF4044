@@ -57,8 +57,6 @@ services:
 
   # ============================================================
   # Spark Master - Koordinator cluster Spark
-  # apache/spark berbeda dari bitnami: tidak ada SPARK_MODE,
-  # harus jalankan script start-master.sh secara eksplisit
   # ============================================================
   spark-master:
     image: apache/spark:3.5.8-scala2.12-java17-python3-r-ubuntu
@@ -129,3 +127,28 @@ services:
         /opt/spark/sbin/start-thriftserver.sh --master spark://spark-master:7077 --hiveconf hive.server2.thrift.port=10000 --hiveconf hive.server2.thrift.bind.host=0.0.0.0 &&
         tail -f /opt/spark/logs/*
       "
+
+  # ============================================================
+  # Jupyter Notebook - Interactive data exploration & testing
+  # Terhubung ke Spark cluster dan MinIO via PySpark
+  # ============================================================
+  jupyter:
+    image: jupyter/pyspark-notebook:spark-3.5.0
+    container_name: jupyter
+    networks:
+      - bigdata-net
+    ports:
+      - "8888:8888"
+    depends_on:
+      - spark-master
+      - minio-init
+    volumes:
+      - ./spark/jars:/home/jovyan/extra-jars
+      - ./notebooks:/home/jovyan/work
+      - ./data:/home/jovyan/data
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+    command: >
+      start-notebook.sh
+      --NotebookApp.token=''
+      --NotebookApp.password=''
