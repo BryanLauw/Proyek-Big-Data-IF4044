@@ -24,7 +24,7 @@ Stack: MinIO · Apache Spark 3.5 · Apache Iceberg 1.4.3 · dbt-spark · Jupyter
 
 - Docker Desktop (dengan WSL2 backend di Windows)
 - Git
-- Python 3.10+
+- Python 3.12
 - ~15 GB ruang disk bebas (untuk data TPC-H dan Docker images)
 
 Install Python dependencies:
