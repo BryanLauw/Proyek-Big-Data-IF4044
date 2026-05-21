@@ -7,8 +7,8 @@ echo "Downloading required JARs..."
 echo ""
 
 ICEBERG_VERSION="1.4.3"
-HADOOP_VERSION="3.3.4"
-AWS_SDK_VERSION="1.12.262"
+HADOOP_VERSION="3.3.5"
+AWS_SDK_VERSION="1.12.375"
 SCALA_VERSION="2.12"
 
 BASE_MVN="https://repo1.maven.org/maven2"
@@ -16,7 +16,7 @@ BASE_MVN="https://repo1.maven.org/maven2"
 download_jar() {
     local url=$1
     local filename=$(basename "$url")
-    
+
     if [ -f "$JARS_DIR/$filename" ]; then
         echo "Already exists: $filename"
     else
@@ -35,12 +35,7 @@ download_jar "$BASE_MVN/org/apache/hadoop/hadoop-aws/${HADOOP_VERSION}/hadoop-aw
 download_jar "$BASE_MVN/com/amazonaws/aws-java-sdk-bundle/${AWS_SDK_VERSION}/aws-java-sdk-bundle-${AWS_SDK_VERSION}.jar"
 
 echo ""
-echo "Additional Hadoop dependencies..."
-download_jar "$BASE_MVN/org/apache/hadoop/hadoop-common/${HADOOP_VERSION}/hadoop-common-${HADOOP_VERSION}.jar"
-download_jar "$BASE_MVN/org/apache/hadoop/hadoop-auth/${HADOOP_VERSION}/hadoop-auth-${HADOOP_VERSION}.jar"
-
-echo ""
-echo "Untuk jaga-jaga..."
+echo "Additional dependencies..."
 download_jar "$BASE_MVN/com/google/guava/guava/31.1-jre/guava-31.1-jre.jar"
 
 echo ""
