@@ -23,7 +23,7 @@ Proyek ini berfokus pada penyelesaian masalah inefisiensi penyimpanan dan lambat
 
 - Docker Desktop
 - Git
-- Python 3.10+
+- Python 3.12
 - ~15 GB penyimpanan bebas (untuk data TPC-H dan Docker images)
 
 ---
