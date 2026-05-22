@@ -1,0 +1,26 @@
+{
+  "meta": {
+    "timestamp": "2026-05-22T00:00:00Z",
+    "mode": "both",
+    "runs": 3,
+    "warmup": 1,
+    "master": "local[*]",
+    "shuffle_partitions": 4
+  },
+  "storage": {
+    "csv_bytes": 1000000000,
+    "iceberg_bytes": 250000000,
+    "compression_ratio": 4.0
+  },
+  "row_counts": {
+    "lineitem": {"csv": 6000000, "iceberg": 6000000, "diff": 0}
+  },
+  "queries": {
+    "csv": {
+      "q1_groupby": {"avg_sec": 12.5, "min_sec": 11.9, "max_sec": 13.1, "stdev_sec": 0.5, "runs": 3, "warmup": 1, "row_count": 4, "times_sec": [11.9, 12.5, 13.1]}
+    },
+    "iceberg": {
+      "q1_groupby": {"avg_sec": 4.2, "min_sec": 4.0, "max_sec": 4.4, "stdev_sec": 0.2, "runs": 3, "warmup": 1, "row_count": 4, "times_sec": [4.0, 4.2, 4.4]}
+    }
+  }
+}

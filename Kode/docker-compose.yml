@@ -72,6 +72,7 @@ services:
       - ./spark/conf:/opt/spark/conf
       - ./spark/jars:/opt/spark/extra-jars
       - ./data:/opt/spark/work
+      - ./benchmark:/opt/spark/benchmark
     command: >
       /bin/bash -c "
         /opt/spark/sbin/start-master.sh &&
@@ -94,6 +95,7 @@ services:
       - ./spark/conf:/opt/spark/conf
       - ./spark/jars:/opt/spark/extra-jars
       - ./data:/opt/spark/work
+      - ./benchmark:/opt/spark/benchmark
     command: >
       /bin/bash -c "
         /opt/spark/sbin/start-worker.sh spark://spark-master:7077 &&
@@ -118,6 +120,7 @@ services:
       - ./spark/conf:/opt/spark/conf
       - ./spark/jars:/opt/spark/extra-jars
       - ./data:/opt/spark/work
+      - ./benchmark:/opt/spark/benchmark
     environment:
       - SPARK_NO_DAEMONIZE=true
     command: >-
@@ -148,6 +151,7 @@ services:
       - ./spark/jars:/home/jovyan/extra-jars
       - ./notebooks:/home/jovyan/work
       - ./data:/home/jovyan/data
+      - ./benchmark:/home/jovyan/benchmark
     environment:
       - JUPYTER_ENABLE_LAB=yes
     command: >
